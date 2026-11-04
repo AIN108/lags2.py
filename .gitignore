@@ -1,0 +1,9 @@
+﻿# local-only files
+research_data/
+vectorstore/
+dedup_cache/
+.idea/
+.venv/
+venv/
+__pycache__/
+.env
