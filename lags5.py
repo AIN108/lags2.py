@@ -95,6 +95,19 @@ except ImportError:
     NEWSPAPER_AVAILABLE = False
 
 
+def ollama_base_url():
+    """OLLAMA_HOST 환경변수(Ollama CLI와 같은 변수)를 따른다. 없으면 기존 기본값 http://localhost:11434."""
+    host = os.environ.get("OLLAMA_HOST", "").strip().rstrip("/")
+    if not host:
+        return "http://localhost:11434"
+    if host.startswith(("http://", "https://")):
+        return host
+    # 스킴 없는 값(예: 0.0.0.0, gpu-box)은 Ollama CLI처럼 포트가 없으면 11434를 붙인다.
+    parts = urlparse("//" + host)
+    netloc = parts.netloc if parts.port is not None else f"{parts.netloc}:11434"
+    return f"http://{netloc}{parts.path}"
+
+
 class DuplicateDetector:
     """중복 콘텐츠 감지 및 제거"""
 
@@ -1315,7 +1328,7 @@ class UltimateMilitaryRAGv6:
 
             # Ollama LLM 초기화 - 최신 버전 대응
             print(f"🤖 {llm_model} 모델 연결 중...")
-            base_url = "http://localhost:11434"
+            base_url = ollama_base_url()
 
             if OLLAMA_NEW:
                 # 최신 langchain-ollama 패키지
@@ -1380,7 +1393,7 @@ class UltimateMilitaryRAGv6:
     def test_ollama_connection(self):
         """Ollama 서버 연결 테스트"""
         try:
-            response = requests.get("http://localhost:11434/api/version", timeout=5)
+            response = requests.get(f"{ollama_base_url()}/api/version", timeout=5)
             return response.status_code == 200
         except:
             return False
