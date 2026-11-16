@@ -6,17 +6,17 @@
 
 ## 파일 구성
 
-같은 앱의 버전별 사본입니다. **새로 실행할 때는 `lags5.py`를 사용하세요.**
+최신판은 저장소 루트의 `lags5.py`입니다. **새로 실행할 때는 `lags5.py`를 사용하세요.** 이전 버전 사본은 기록용으로 `legacy/` 폴더에 보관합니다.
 
 | 파일 | 클래스 | 임베딩 모델 | 기본 LLM (Ollama) | 벡터 DB 폴더 |
 |---|---|---|---|---|
-| `rag.py` | `UltimateLocalRAG` | intfloat/multilingual-e5-large | llama3.1:70b | `vectorstore/chroma_db` |
-| `lags2.py` | `UltimateLocalRAGv5` | intfloat/multilingual-e5-large | llama3.1:70b | `vectorstore/chroma_db_v5` |
-| `lags3.py` | `BGEQwenRAGSystem` | BAAI/bge-m3 | qwen2.5:14b | `vectorstore/chroma_db_bge_qwen` |
-| `lag4.py` | `UltimateMilitaryRAGv6` | intfloat/multilingual-e5-large | llama3.1:70b | `vectorstore/chroma_db_v6_military` |
+| `legacy/rag.py` | `UltimateLocalRAG` | intfloat/multilingual-e5-large | llama3.1:70b | `legacy/vectorstore/chroma_db` |
+| `legacy/lags2.py` | `UltimateLocalRAGv5` | intfloat/multilingual-e5-large | llama3.1:70b | `legacy/vectorstore/chroma_db_v5` |
+| `legacy/lags3.py` | `BGEQwenRAGSystem` | BAAI/bge-m3 | qwen2.5:14b | `legacy/vectorstore/chroma_db_bge_qwen` |
+| `legacy/lag4.py` | `UltimateMilitaryRAGv6` | intfloat/multilingual-e5-large | llama3.1:70b | `legacy/vectorstore/chroma_db_v6_military` |
 | `lags5.py` | `UltimateMilitaryRAGv6` | intfloat/multilingual-e5-large | **qwen2.5:7b** (UI에서 gemma3n:e2b 선택 가능) | `vectorstore/chroma_db_v6_military` |
 
-`lag4.py`와 `lags5.py`는 기본 모델과 선택 가능한 모델 목록만 다릅니다.
+`legacy/lag4.py`와 `lags5.py`는 기본 모델과 선택 가능한 모델 목록만 다릅니다. 옛 사본은 스크립트가 있는 폴더 기준으로 데이터를 찾으므로 `legacy/research_data/`, `legacy/vectorstore/`를 씁니다. 예전에 루트에서 옛 사본을 실행하며 만든 `research_data/`·`vectorstore/`를 계속 쓰려면 `legacy/` 아래로 옮기세요.
 
 ## 준비
 
@@ -40,7 +40,7 @@
    - GPU를 쓰려면 `pip install -r requirements.txt` 전에 사용 중인 CUDA 버전에 맞는 PyTorch를 [pytorch.org](https://pytorch.org/get-started/locally/) 안내대로 먼저 설치하세요. GPU가 없으면 CPU로 동작합니다.
    - LangChain은 0.3 계열과 1.x 계열(`langchain-community`는 0.4) 모두에서 동작을 확인했으며, `requirements.txt`는 확인한 범위(다음 메이저 미만)로 제한합니다.
    - 첫 실행 때 Hugging Face에서 임베딩 모델(multilingual-e5-large, 약 2GB)을 내려받습니다.
-3. `lags5.py`의 웹 수집은 requests + BeautifulSoup만 씁니다. 코드 상단에서 `playwright`, `trafilatura`, `newspaper`를 import하려고 시도하지만, `lags5.py`에서는 이 패키지들을 실제로 쓰지 않으므로 설치하지 않아도 됩니다. `rag.py`만 Playwright·trafilatura·newspaper3k를 사용합니다.
+3. `lags5.py`의 웹 수집은 requests + BeautifulSoup만 씁니다. 코드 상단에서 `playwright`, `trafilatura`, `newspaper`를 import하려고 시도하지만, `lags5.py`에서는 이 패키지들을 실제로 쓰지 않으므로 설치하지 않아도 됩니다. `legacy/rag.py`만 Playwright·trafilatura·newspaper3k를 사용합니다.
 
 ## 실행
 

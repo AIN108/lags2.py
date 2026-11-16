@@ -1,4 +1,4 @@
-# lags5.py(최신판) 실행에 필요한 패키지. 다른 버전 파일(rag.py, lags2.py, lags3.py, lag4.py)도 같은 패키지를 사용한다.
+# lags5.py(최신판) 실행에 필요한 패키지. legacy/의 옛 사본(rag.py, lags2.py, lags3.py, lag4.py)도 같은 패키지를 사용한다.
 # LangChain 계열은 0.3 계열과 1.x 계열(langchain-community는 0.4)에서 import·동작을 확인했다. 상한은 확인한 다음 메이저 미만.
 langchain>=0.3,<2
 langchain-core>=0.3,<2
