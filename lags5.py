@@ -1768,6 +1768,12 @@ class UltimateMilitaryRAGv6:
 
         if vectorstore_path.exists() and not force_rebuild:
             print("📚 기존 벡터스토어를 사용합니다")
+            # 선택한 경로의 DB를 실제로 열어 RAG 체인을 구성한다 (대안 경로는 시작 시 자동 로드되지 않았을 수 있음).
+            self.vectorstore = Chroma(
+                persist_directory=str(vectorstore_path),
+                embedding_function=self.embeddings
+            )
+            self.setup_rag_chain()
             return True
 
         print("🔨 벡터스토어 구축 중...")
@@ -1813,8 +1819,13 @@ class UltimateMilitaryRAGv6:
         return True
 
     def load_vectorstore(self):
-        """기존 벡터스토어 로드"""
+        """기존 벡터스토어 로드 (기본 경로 우선, 없으면 대안 경로)"""
+        import tempfile
         vectorstore_path = self.db_path / "chroma_db_v6_military"
+        alternative_path = Path(tempfile.gettempdir()) / "chroma_db_v6_military"
+        if not vectorstore_path.exists() and alternative_path.exists():
+            print(f"📁 대안 경로의 벡터스토어를 사용합니다: {alternative_path}")
+            vectorstore_path = alternative_path
 
         if vectorstore_path.exists():
             try:
