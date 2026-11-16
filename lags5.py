@@ -1345,12 +1345,26 @@ class UltimateMilitaryRAGv6:
                 print("✅ 메인 임베딩 모델 로드 완료")
 
             except Exception as e:
+                # 백업 모델(384차원)은 메인 모델(1024차원)로 만든 벡터 DB를 검색할 수 없다.
+                # 기존 DB가 있으면 조용히 바꾸지 않고 원인과 해결 방법을 알린다.
+                existing = self.existing_vectorstore_paths()
+                if existing:
+                    paths = ", ".join(str(path) for path in existing)
+                    raise RuntimeError(
+                        f"메인 임베딩 모델(intfloat/multilingual-e5-large, 1024차원)을 불러오지 못했습니다: {e}\n"
+                        f"기존 벡터 DB({paths})는 이 모델로 만들어져 있어, 백업 모델"
+                        f"(all-MiniLM-L6-v2, 384차원)로는 차원이 달라 검색할 수 없으므로 백업 모델로 바꾸지 않습니다.\n"
+                        "해결: ① 메인 모델 로드 문제(인터넷 연결·Hugging Face 캐시·디스크 공간·"
+                        "sentence-transformers 설치)를 해결한 뒤 다시 실행하거나, "
+                        "② 백업 모델로 새로 구축하려면 위 DB 폴더를 다른 곳으로 옮기거나 지운 뒤 다시 실행하세요."
+                    ) from e
                 print(f"⚠️ 메인 모델 실패, 백업 모델 사용: {e}")
                 try:
                     self.embeddings = HuggingFaceEmbeddings(
                         model_name="sentence-transformers/all-MiniLM-L6-v2"
                     )
-                    print("✅ 백업 임베딩 모델 로드 완료")
+                    print("⚠️ 백업 임베딩 모델(all-MiniLM-L6-v2, 384차원)로 대체했습니다. 검색 품질이 낮아질 수 있고, "
+                          "이 상태로 만든 벡터 DB는 메인 모델(1024차원)이 다시 로드되면 사용할 수 없어 새로 구축해야 합니다.")
                 except Exception as e2:
                     print(f"❌ 모든 임베딩 모델 실패: {e2}")
                     raise Exception(f"임베딩 모델 로드 실패: {e2}")
@@ -1418,6 +1432,13 @@ class UltimateMilitaryRAGv6:
 
             # 오류를 다시 발생시켜 상위에서 처리하도록 함
             raise e
+
+    def existing_vectorstore_paths(self):
+        """기본 경로와 대안 경로(임시 폴더) 중 이미 존재하는 벡터 DB 폴더 목록"""
+        import tempfile
+        candidates = [self.db_path / "chroma_db_v6_military",
+                      Path(tempfile.gettempdir()) / "chroma_db_v6_military"]
+        return [path for path in candidates if path.exists()]
 
     def test_ollama_connection(self):
         """Ollama 서버 연결 테스트"""
@@ -2692,7 +2713,7 @@ if __name__ == "__main__":
     print("\n📋 설치 명령어:")
     print("1. ollama pull qwen2.5:7b")
     print("2. pip install --upgrade sentence-transformers chromadb torch")
-    print("3. pip install --upgrade langchain langchain-community")
+    print('3. pip install --upgrade langchain langchain-community "langchain-huggingface>=0.3.1,<2"')
     print("4. pip install pandas numpy openpyxl xlrd beautifulsoup4")
     print("5. pip install playwright trafilatura newspaper3k")
 
