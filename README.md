@@ -20,11 +20,17 @@
 
 ## 준비
 
-1. **Ollama**를 설치하고 서버를 실행한 뒤 모델을 받습니다. 앱은 `http://localhost:11434`에 고정으로 접속합니다.
+1. **Ollama**를 설치하고 서버를 실행한 뒤 모델을 받습니다. 앱은 기본으로 `http://localhost:11434`에 접속합니다.
    ```bash
    ollama pull qwen2.5:7b
    ollama pull gemma3n:e2b   # 선택
    ```
+   다른 PC나 다른 포트의 Ollama를 쓰려면 Ollama CLI와 같은 `OLLAMA_HOST` 환경변수를 지정합니다. 스킴 없이 호스트만 쓰면 `http://`와 기본 포트 `11434`가 붙습니다.
+   ```bash
+   OLLAMA_HOST=192.168.0.10 python lags5.py              # → http://192.168.0.10:11434
+   OLLAMA_HOST=http://gpu-box:8080 python lags5.py       # 스킴을 쓰면 그대로 사용
+   ```
+   Windows PowerShell에서는 `$env:OLLAMA_HOST="192.168.0.10"`로 지정한 뒤 실행합니다.
 2. **Python 가상환경**을 만들고 의존성을 설치합니다.
    ```bash
    python -m venv .venv
@@ -32,7 +38,7 @@
    pip install -r requirements.txt
    ```
    - GPU를 쓰려면 `pip install -r requirements.txt` 전에 사용 중인 CUDA 버전에 맞는 PyTorch를 [pytorch.org](https://pytorch.org/get-started/locally/) 안내대로 먼저 설치하세요. GPU가 없으면 CPU로 동작합니다.
-   - `requirements.txt`는 LangChain을 0.3 계열로 제한합니다. 현재 코드가 langchain 1.x에서 삭제된 `langchain.schema`를 import하기 때문입니다.
+   - LangChain은 0.3 계열과 1.x 계열(`langchain-community`는 0.4) 모두에서 동작을 확인했으며, `requirements.txt`는 확인한 범위(다음 메이저 미만)로 제한합니다.
    - 첫 실행 때 Hugging Face에서 임베딩 모델(multilingual-e5-large, 약 2GB)을 내려받습니다.
 3. `lags5.py`의 웹 수집은 requests + BeautifulSoup만 씁니다. 코드 상단에서 `playwright`, `trafilatura`, `newspaper`를 import하려고 시도하지만, `lags5.py`에서는 이 패키지들을 실제로 쓰지 않으므로 설치하지 않아도 됩니다. `rag.py`만 Playwright·trafilatura·newspaper3k를 사용합니다.
 
@@ -52,6 +58,6 @@ python lags5.py
 
 ## 알려진 제한
 
-- Ollama 주소가 `http://localhost:11434`로 고정되어 있어 원격 Ollama 서버는 쓸 수 없습니다.
+- Ollama 주소는 `OLLAMA_HOST` 환경변수로만 바꿀 수 있습니다(UI 설정 없음). 서버 바인딩용으로 `OLLAMA_HOST=0.0.0.0`을 설정해 둔 PC에서는 앱도 `http://0.0.0.0:11434`로 접속하며, 이 주소는 Windows에서 실패할 수 있으므로 앱 실행 시에는 `localhost` 등 실제 주소를 지정하세요.
 - 웹 수집 설정의 `respect_robots_txt` 값은 저장만 되고 실제로는 robots.txt를 확인하지 않습니다. 수집 대상 사이트의 이용 조건을 직접 확인하세요.
 - 테스트 코드는 없습니다.
