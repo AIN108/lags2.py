@@ -1,0 +1,7 @@
+# CI 매트릭스: LangChain 1.x 계열 (requirements.txt 상한 쪽)
+langchain>=1.0,<2
+langchain-core>=1.0,<2
+langchain-community>=0.4,<0.5
+langchain-text-splitters>=1.0,<2
+langchain-ollama>=1.0,<2
+langchain-chroma>=1.0,<2
