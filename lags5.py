@@ -2010,6 +2010,10 @@ class UltimateMilitaryRAGv6:
             def format_docs(docs):
                 return "\n\n".join(doc.page_content for doc in docs)
 
+            self.format_docs = format_docs
+            # 이미 검색한 문서로 답변만 생성하는 체인 (ask()에서 검색을 한 번만 하기 위해 사용)
+            self.answer_chain = self.current_template | self.llm | StrOutputParser()
+
             # 군사 전문 RAG 체인
             self.rag_chain = (
                     {
@@ -2120,8 +2124,11 @@ class UltimateMilitaryRAGv6:
             # 검색된 문서 확인
             retrieved_docs = self.retriever.invoke(processed_question)
 
-            # RAG 체인 실행
-            response = self.rag_chain.invoke(processed_question)
+            # 위에서 검색한 문서로 답변 생성 (rag_chain.invoke는 같은 검색을 한 번 더 수행하므로 쓰지 않음)
+            response = self.answer_chain.invoke({
+                "context": self.format_docs(retrieved_docs),
+                "question": processed_question,
+            })
 
             # 출처 정보 추가
             sources = []
