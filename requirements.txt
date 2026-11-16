@@ -6,6 +6,8 @@ langchain-community>=0.3,<0.5
 langchain-text-splitters>=0.3,<2
 langchain-ollama>=0.2,<2
 langchain-chroma>=0.1,<2
+# HuggingFaceEmbeddings 전용 패키지 (0.3.1 이상은 torch를 강제 설치하지 않음. 실제 임베딩에는 아래 sentence-transformers 사용)
+langchain-huggingface>=0.3.1,<2
 chromadb
 sentence-transformers
 gradio

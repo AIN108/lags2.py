@@ -49,7 +49,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain_core.documents import Document
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# 임베딩·벡터 DB는 지원이 종료(sunset)된 langchain-community 대신 전용 패키지를 쓴다.
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
 
 # 최신 LangChain 패키지 import
 try:
@@ -58,13 +60,6 @@ try:
 except ImportError:
     from langchain_community.llms import Ollama
     OLLAMA_NEW = False
-
-try:
-    from langchain_chroma import Chroma
-    CHROMA_NEW = True
-except ImportError:
-    from langchain_community.vectorstores import Chroma
-    CHROMA_NEW = False
 
 # xlrd 사용 가능 여부 확인
 try:
@@ -2663,11 +2658,6 @@ if __name__ == "__main__":
         print("✅ langchain-ollama: 최신 버전 사용")
     else:
         print("⚠️ langchain-ollama: 구버전 (업그레이드 권장)")
-
-    if CHROMA_NEW:
-        print("✅ langchain-chroma: 최신 버전 사용")
-    else:
-        print("⚠️ langchain-chroma: 구버전 (업그레이드 권장)")
 
     print("\n🎖️ v6.0 군사·전력 분석 전문 기능:")
     print("- 🏛️ OOB(전력 편성): 특정 연도·국가/군관구/부대의 병력·장비 수량, 지휘체계, 배치")
