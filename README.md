@@ -60,4 +60,4 @@ python lags5.py
 
 - Ollama 주소는 `OLLAMA_HOST` 환경변수로만 바꿀 수 있습니다(UI 설정 없음). 서버 바인딩용으로 `OLLAMA_HOST=0.0.0.0`을 설정해 둔 PC에서는 앱도 `http://0.0.0.0:11434`로 접속하며, 이 주소는 Windows에서 실패할 수 있으므로 앱 실행 시에는 `localhost` 등 실제 주소를 지정하세요.
 - 웹 수집은 기본으로 robots.txt를 따릅니다(`respect_robots_txt=True`, RFC 9309 기준: robots.txt가 4xx면 전체 허용, 5xx·연결 실패면 전체 금지). UI에는 이 옵션을 끄는 칸이 없고, 끄려면 코드에서 `configure_scraping_limits(respect_robots_txt=False)`를 호출해야 합니다. `Crawl-delay`는 반영하지 않으며(요청 간격은 `delay_between_requests`), User-Agent가 브라우저 값이라 `User-agent: *` 규칙이 적용됩니다. robots.txt와 별개로 수집 대상 사이트의 이용 조건은 직접 확인하세요.
-- 테스트 코드는 없습니다.
+- 테스트(`tests/`)는 torch·sentence-transformers·Ollama 없이 가짜 임베딩과 가짜 LLM으로 돕니다. import, UI 구성, `OLLAMA_HOST`, 질문당 검색 1회, 벡터스토어 재시작, robots.txt를 확인하며, 실제 임베딩 모델과 답변 품질은 확인하지 않습니다. GitHub Actions가 LangChain 0.3·1.x 두 계열에서 실행합니다(`pip install -r requirements.txt pytest -c tests/constraints-langchain-1.x.txt` 후 `python -m pytest -q`, torch 없이 돌리려면 `sentence-transformers` 줄을 빼고 설치).
