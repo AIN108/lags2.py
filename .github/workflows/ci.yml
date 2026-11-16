@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    # torch·sentence-transformers(수 GB)는 설치하지 않는다. 테스트가 빈 모듈과 가짜 임베딩으로 대체한다.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        langchain: ["0.3", "1.x"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requirements without sentence-transformers
+        run: |
+          grep -v '^sentence-transformers' requirements.txt > /tmp/requirements-no-torch.txt
+          pip install -r /tmp/requirements-no-torch.txt "pytest>=8,<10" -c tests/constraints-langchain-${{ matrix.langchain }}.txt
+      - run: pip list | grep -i langchain
+      - run: python -m pytest -q
