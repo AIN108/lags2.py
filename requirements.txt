@@ -1,0 +1,20 @@
+# lags5.py(최신판) 실행에 필요한 패키지. 다른 버전 파일(rag.py, lags2.py, lags3.py, lag4.py)도 같은 패키지를 사용한다.
+# LangChain 계열은 import 동작을 확인한 0.3 계열로 제한한다 (langchain 1.x에는 langchain.schema가 없음).
+langchain>=0.3,<0.4
+langchain-core>=0.3,<0.4
+langchain-community>=0.3,<0.4
+langchain-text-splitters>=0.3,<0.4
+langchain-ollama>=0.2,<0.4
+langchain-chroma>=0.1,<0.3
+chromadb
+sentence-transformers
+gradio
+numpy
+pandas
+openpyxl
+xlrd
+PyPDF2
+pypdf
+Pillow
+requests
+beautifulsoup4
