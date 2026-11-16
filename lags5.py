@@ -183,6 +183,7 @@ class PersonalDataWebScraper:
         self.duplicate_detector = DuplicateDetector()
         self.visited_urls = set()
         self.domain_stats = {}
+        self.robots_cache = {}  # "scheme://host" -> RobotFileParser
 
         # 기본 설정 초기화
         self.config = {
@@ -207,6 +208,33 @@ class PersonalDataWebScraper:
             'custom_filters': custom_filters or {}
         }
 
+    def is_allowed_by_robots(self, url):
+        """robots.txt 규칙 확인 (RFC 9309). 사이트별로 한 번만 받아 캐시한다.
+
+        4xx(파일 없음 등)는 전체 허용, 5xx·연결 실패는 전체 금지로 본다.
+        """
+        from urllib.robotparser import RobotFileParser
+
+        parsed = urlparse(url)
+        if parsed.scheme not in ('http', 'https'):
+            return True
+        base = f"{parsed.scheme}://{parsed.netloc}"
+        parser = self.robots_cache.get(base)
+        if parser is None:
+            parser = RobotFileParser()
+            try:
+                response = self.session.get(base + "/robots.txt", timeout=10)
+                if response.status_code >= 500:
+                    parser.disallow_all = True
+                elif response.status_code >= 400:
+                    parser.allow_all = True
+                else:
+                    parser.parse(response.text.splitlines())
+            except requests.RequestException:
+                parser.disallow_all = True
+            self.robots_cache[base] = parser
+        return parser.can_fetch(self.headers['User-Agent'], url)
+
     def scrape_any_content_type(self, start_urls, content_types='all'):
         """모든 종류의 웹페이지 콘텐츠 추출"""
 
@@ -230,6 +258,12 @@ class PersonalDataWebScraper:
 
             # 이미 방문한 URL 건너뛰기
             if current_url in self.visited_urls:
+                continue
+
+            # robots.txt 확인 (설정값 respect_robots_txt, 기본 True)
+            if self.config.get('respect_robots_txt', True) and not self.is_allowed_by_robots(current_url):
+                print(f"🤖 robots.txt에 의해 제외: {current_url}")
+                self.visited_urls.add(current_url)
                 continue
 
             # 도메인별 제한 확인
